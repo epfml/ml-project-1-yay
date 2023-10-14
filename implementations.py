@@ -1,12 +1,56 @@
 from helpers import *
 import numpy as np
 
-'''  Mean square error '''
 
-
+''' MSE loss'''
 def compute_loss(y, tx, w):
     e = y - tx.dot(w)
     return 0.5 * np.mean(e ** 2)
+
+''' Gradient of MSE'''
+def compute_gradient(y, tx, w):
+    e = y - tx.dot(w)
+    grad = -tx.T.dot(e) / len(e)
+    return grad
+
+
+
+''' MSE Gradient descent
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features
+        initial_w: initial weight vector
+        max_iter: number of iterations
+        gamma: step size of the gradient descent
+    Returns:
+        w : weights
+        loss: last loss value from the last iteration
+'''
+
+
+def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
+    w = initial_w
+    for _ in range(max_iters):
+        grad = compute_gradient(y, tx, w)
+        w = w - gamma * grad
+
+    loss = compute_loss(y, tx, w)
+    return w, loss
+
+
+''' Linear regression using stochastic gradient descent'''
+
+
+def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
+    w = initial_w
+    for _ in range(max_iters):
+        for y_batch, tx_batch in batch_iter(y, tx, batch_size=1, num_batches=1):
+            grad = compute_gradient(y_batch, tx_batch, w)
+            w = w - gamma * grad
+
+    loss = compute_loss(y, tx, w)
+    return w, loss
+
 
 
 ''' Least squares using normal equations
@@ -16,7 +60,6 @@ def compute_loss(y, tx, w):
     Returns:
         w : weights
         loss: loss value'''
-
 
 def least_square(y, tx):
     w = np.linalg.solve(tx.T.dot(tx), tx.T.dot(y))
@@ -43,50 +86,7 @@ def ridge_regression(y, tx, lambda_):
     return w, loss
 
 
-def compute_gradient(y, tx, w):
-    e = y - tx.dot(w)
-    grad = -tx.T.dot(e) / len(e)
-    return grad, e
 
-
-''' Gradient descent
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features
-        initial_w: initial weight vector
-        max_iter: number of iterations
-        gamma: step size of the gradient descent
-    Returns:
-        w : weights
-        loss: last loss value from the last iteration
-'''
-
-
-def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
-    w = initial_w
-    losses = []
-    for n_iter in range(max_iters):
-        grad, e = compute_gradient(y, tx, w)
-        loss = 0.5 * np.mean(e ** 2)
-        losses.append(loss)
-        w = w - gamma * grad
-    return w, losses[-1]
-
-
-''' Linear regression using stochastic gradient descent'''
-
-
-def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
-    w = initial_w
-    losses = []
-    for n_iter in range(max_iters):
-        for y_batch, x_batch in batch_iter(y, tx, batch_size=1, num_batches=1):
-            grad, _ = compute_gradient(y, tx, w)
-            w = w - gamma * grad
-            loss = compute_loss(y, tx, w)
-            losses.append(loss)
-
-    return w, losses[-1]
 
 
 def sigmoid(t):
@@ -122,7 +122,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
         y_hat = sigmoid(tx.dot(w))
-        gradient = 1 / len(y) * tx.T.np.dot(y_hat - y) + 2 * lambda_ * w
+        gradient = 1 / len(y) * tx.T.np.dot(y_hat - y) + 2 * lambda_ * w 
         w = w - gamma * gradient
 
     y_hat = sigmoid(tx.dot(w))
