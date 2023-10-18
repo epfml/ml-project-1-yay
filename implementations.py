@@ -122,7 +122,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
         y_hat = sigmoid(tx.dot(w))
-        gradient = 1 / len(y) * tx.T.np.dot(y_hat - y) + 2 * lambda_ * w 
+        gradient = 1 / len(y) * tx.T.np.dot(y_hat - y) + 2 * lambda_ * w
         w = w - gamma * gradient
 
     y_hat = sigmoid(tx.dot(w))
