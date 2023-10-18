@@ -26,9 +26,8 @@ def compute_gradient(y, tx, w):
         w : weights
         loss: last loss value from the last iteration
 '''
-
-
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
+
     w = initial_w
     for _ in range(max_iters):
         grad = compute_gradient(y, tx, w)
@@ -61,7 +60,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         w : weights
         loss: loss value'''
 
-def least_square(y, tx):
+def least_squares(y, tx):
     w = np.linalg.solve(tx.T.dot(tx), tx.T.dot(y))
     loss = compute_loss(y, tx, w)
     return w, loss
@@ -88,7 +87,6 @@ def ridge_regression(y, tx, lambda_):
 
 
 
-
 def sigmoid(t):
     return 1 / (1 + np.exp(-t))
 
@@ -102,12 +100,10 @@ def logistic_loss(y, y_hat):
 
 
 ''' Logistic regression using gradient descent or SGD'''
-
-
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
-        gradient = 1 / len(y) * tx.T.np.dot(sigmoid(tx.dot(w)) - y)
+        gradient = 1 / len(y) * tx.T.dot(sigmoid(tx.dot(w)) - y)
         w = w - gamma * gradient
 
     y_hat = sigmoid(tx.dot(w))
@@ -116,13 +112,11 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
 
 ''' Regularized logistic regression using gradient descent or SGD'''
-
-
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
     for _ in range(max_iters):
         y_hat = sigmoid(tx.dot(w))
-        gradient = 1 / len(y) * tx.T.np.dot(y_hat - y) + 2 * lambda_ * w
+        gradient = 1 / len(y) * tx.T.dot(y_hat - y) + 2 * lambda_ * w
         w = w - gamma * gradient
 
     y_hat = sigmoid(tx.dot(w))
