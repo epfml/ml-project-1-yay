@@ -133,7 +133,7 @@ def sigmoid(t):
       Returns:
       float: The result of the sigmoid function
       """
-    return 1.0 / (1 + np.exp(-t))
+    return 1.0 / (1.0 + np.exp(-t))
 
 
 
@@ -149,15 +149,16 @@ def logistic_loss(y, tx, w):
         float: The logistic loss between true labels and predicted probabilities.
         """
     y_hat = sigmoid(tx.dot(w))
-    loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
-    return np.squeeze(loss)  # Remove axes of length 1
-
+    # loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
+    loss = - np.average(y*np.log(sigmoid(tx.dot(w))) + (1-y)*np.log(1-sigmoid(tx.dot(w))))
+    ## return np.squeeze(loss)  # Remove axes of length 1
+    return loss
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """
       Perform logistic regression using gradient descent or SGD
 
-      Parameters:
+      Parameters: d
       y (array-like): True labels
       tx : Feature matrix
       initial_w : Initial weights
@@ -173,7 +174,6 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     for _ in range(max_iters):
         gradient =  tx.T.dot(sigmoid(tx.dot(w)) - y)/ len(y)
         w = w - gamma * gradient
-        print("w is", w)
 
 
     loss = logistic_loss(y, tx, w)
