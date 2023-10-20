@@ -70,6 +70,13 @@ def create_csv_submission(ids, y_pred, name):
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({"Id": int(r1), "Prediction": int(r2)})
 
+
+
+#  ///////////////////////////////
+
+
+
+
 # from solutions of lab 2
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """

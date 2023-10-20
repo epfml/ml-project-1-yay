@@ -2,124 +2,204 @@ from helpers import *
 import numpy as np
 
 
-''' MSE loss'''
-def compute_loss(y, tx, w):
+
+def compute_MSE_loss(y, tx, w):
+    """
+
+       Parameters:
+        y:  shape=(N, 1)
+        tx: shape=(N, D)
+        w:  shape=(D, 1)
+
+       Returns:
+       float: The Mean Squared Error (MSE) loss between true labels and predictions.
+       """
     e = y - tx.dot(w)
     return 0.5 * np.mean(e ** 2)
 
-''' Gradient of MSE'''
+
 def compute_gradient(y, tx, w):
+    """
+        Parameters:
+         y: shape = (N, 1)
+         tx: shape = (N, D)
+         w: shape = (D, 1)
+
+        Returns:
+        The gradient of the MSE loss
+    """
     e = y - tx.dot(w)
     grad = -tx.T.dot(e) / len(e)
     return grad
 
 
 
-''' MSE Gradient descent
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features
-        initial_w: initial weight vector
-        max_iter: number of iterations
-        gamma: step size of the gradient descent
-    Returns:
-        w : weights
-        loss: last loss value from the last iteration
-'''
-def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
 
+def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
+    """ MSE Gradient descent
+        Args:
+            y: numpy array of shape (N,), N is the number of samples.
+            tx: numpy array of shape (N,D), D is the number of features
+            initial_w: initial weight vector
+            max_iter: number of iterations
+            gamma: step size of the gradient descent
+        Returns:
+            w : weights
+            loss: last loss value from the last iteration
+    """
     w = initial_w
     for _ in range(max_iters):
         grad = compute_gradient(y, tx, w)
         w = w - gamma * grad
 
-    loss = compute_loss(y, tx, w)
+    loss = compute_MSE_loss(y, tx, w)
     return w, loss
 
 
-''' Linear regression using stochastic gradient descent'''
 
 
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
+    """
+        Perform Stochastic Gradient Descent (SGD) to optimize the loss between true labels and predictions.
+
+        Parameters:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features
+        initial_w (D, 1): Initial model parameters (weights), a 1D array or list.
+        max_iters (int): The maximum number of iterations for updating model parameters.
+        gamma (float): The learning rate, controlling the step size during parameter updates.
+
+        Returns:
+        tuple: A tuple containing the final model parameters (weights) and the MSE loss.
+          - w (array-like): The learned model parameters after SGD optimization.
+          - loss (float): The Mean Squared Error (MSE) loss between true labels and predictions.
+        """
     w = initial_w
     for _ in range(max_iters):
         for y_batch, tx_batch in batch_iter(y, tx, batch_size=1, num_batches=1):
             grad = compute_gradient(y_batch, tx_batch, w)
             w = w - gamma * grad
 
-    loss = compute_loss(y, tx, w)
+    loss = compute_MSE_loss(y, tx, w)
     return w, loss
 
 
-
-''' Least squares using normal equations
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features
-    Returns:
-        w : weights
-        loss: loss value'''
 
 def least_squares(y, tx):
+    """
+        Least squares using normal equations
+        Args:
+            y: numpy array of shape (N,), N is the number of samples.
+            tx: numpy array of shape (N,D), D is the number of features
+        Returns:
+            w:  numpy array of shape (D,1),  weights
+            loss: loss value
+    """
     w = np.linalg.solve(tx.T.dot(tx), tx.T.dot(y))
-    loss = compute_loss(y, tx, w)
+    loss = compute_MSE_loss(y, tx, w)
     return w, loss
 
 
-''' Ridge regression using normal equations.
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features
-    Returns:
-        w : weights
-        loss: last loss value from the last iteration
-        '''
+
 
 
 def ridge_regression(y, tx, lambda_):
+    """
+        Perform Ridge regression using normal equations.
+        Parameters:
+            y: numpy array of shape (N,), N is the number of samples.
+            tx: numpy array of shape (N,D), D is the number of featuresy_hat = sigmoid(tx.dot(w))
+            lambda_: float, a regularization parameter
+
+        Returns:
+            w : weights
+            loss: last loss value from the last iteration
+
+    """
     lambda_prime = lambda_ * 2 * tx.shape[0]
     a = tx.T.dot(tx) + lambda_prime * np.identity(tx.shape[1])
     b = tx.T.dot(y)
     w = np.linalg.solve(a, b)
-    loss = compute_loss(y, tx, w)
+    loss = compute_MSE_loss(y, tx, w)
     return w, loss
 
 
-
-
 def sigmoid(t):
-    return 1 / (1 + np.exp(-t))
+    """
+      Calculate the sigmoid function for a given input.
+      Parameters:
+      t (float): The input value
+
+      Returns:
+      float: The result of the sigmoid function
+      """
+    return 1.0 / (1 + np.exp(-t))
 
 
-''' Loss for the logistic function '''
 
 
-def logistic_loss(y, y_hat):
+def logistic_loss(y, tx, w):
+    """
+        Calculate the logistic loss between true labels and predicted probabilities.
+        Parameters:
+        y: numpy array containing N (-1 or 1) values for true labels
+        tx: numpy array of shape (N,D), D is the number of features
+        w : numpy array of shape weights
+        Returns:
+        float: The logistic loss between true labels and predicted probabilities.
+        """
+    y_hat = sigmoid(tx.dot(w))
     loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
     return np.squeeze(loss)  # Remove axes of length 1
 
 
-''' Logistic regression using gradient descent or SGD'''
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    """
+      Perform logistic regression using gradient descent or SGD
+
+      Parameters:
+      y (array-like): True labels
+      tx : Feature matrix
+      initial_w : Initial weights
+      max_iters (int): The maximum number of iterations for updating model parameters.
+      gamma (float): The learning rate
+
+      Returns:
+      tuple: A tuple containing the final model parameters (weights) and the logistic loss.
+        - w : The learned model parameters after logistic regression.
+        - loss : The logistic loss (cross-entropy) between true labels and predicted probabilities.
+      """
     w = initial_w
     for _ in range(max_iters):
-        gradient = 1 / len(y) * tx.T.dot(sigmoid(tx.dot(w)) - y)
+        gradient =  tx.T.dot(sigmoid(tx.dot(w)) - y)/ len(y)
         w = w - gamma * gradient
 
-    y_hat = sigmoid(tx.dot(w))
-    loss = logistic_loss(y, y_hat)
+    loss = logistic_loss(y, tx, w)
     return w, loss
 
 
-''' Regularized logistic regression using gradient descent or SGD'''
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    """
+        Perform regularized logistic regression using gradient descent or SGD
+
+        Parameters:
+        y (N, 1): True labels
+        tx (N, D): Feature matrix
+        lambda_ (float): Regularization parameter
+        initial_w : Initial model weights
+        max_iters (int): The maximum number of iterations for updating model parameters.
+        gamma (float): The learning rate
+
+        Returns:
+          - w : The learned model parameters after regularized logistic regression.
+          - loss (float): The logistic loss between true labels and predicted probabilities, including the regularization term.
+        """
+
     w = initial_w
     for _ in range(max_iters):
         y_hat = sigmoid(tx.dot(w))
         gradient = 1 / len(y) * tx.T.dot(y_hat - y) + 2 * lambda_ * w
         w = w - gamma * gradient
 
-    y_hat = sigmoid(tx.dot(w))
-    loss = logistic_loss(y, y_hat)
-
+    loss = logistic_loss(y, tx, w)
     return w, loss
