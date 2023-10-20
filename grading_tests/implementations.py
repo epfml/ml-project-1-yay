@@ -86,14 +86,11 @@ def ridge_regression(y, tx, lambda_):
 
 
 
-
 def sigmoid(t):
     return 1 / (1 + np.exp(-t))
 
 
 ''' Loss for the logistic function '''
-
-
 def logistic_loss(y, y_hat):
     loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
     return np.squeeze(loss)  # Remove axes of length 1
@@ -105,6 +102,8 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     for _ in range(max_iters):
         gradient = 1 / len(y) * tx.T.dot(sigmoid(tx.dot(w)) - y)
         w = w - gamma * gradient
+        print("w is", w)
+
 
     y_hat = sigmoid(tx.dot(w))
     loss = logistic_loss(y, y_hat)
