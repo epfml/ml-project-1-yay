@@ -72,7 +72,7 @@ def create_csv_submission(ids, y_pred, name):
 
 
 
-#  ///////////////////////////////
+#  ///////////////// added //////////////
 
 
 
@@ -136,3 +136,28 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
             start_index + batch_size
         )  # The first data point of the following batch
         yield y[start_index:end_index], tx[start_index:end_index]
+
+
+
+        # //////////////////// split data ////////////////////////
+def split_data(x, y, ratio, seed=1):
+            """ Split the dataset based on the split ratio. """
+            # Set seed
+            np.random.seed(seed)
+
+            N = len(y);
+            separator = int(N * ratio)
+            # Compute a random permutation of the size of the dataset
+            new_indices = np.random.permutation(N)
+
+            # Define the indices of the train set and test set
+            train_indices = new_indices[:separator]
+            test_indices = new_indices[separator:]
+
+            # Compute train and test set using their indices
+            x_train = x[train_indices]
+            x_test = x[test_indices]
+            y_train = y[train_indices]
+            y_test = y[test_indices]
+
+            return x_train, x_test, y_train, y_test

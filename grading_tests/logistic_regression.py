@@ -12,11 +12,12 @@ with open('training_y.pickle', 'rb') as file:
 '''
 # loading the data
 data_path = '../data/dataset_to_release'
-xtrain, xtest, ytrain, _, _ = load_csv_data(data_path)
+xtrain, xtest, ytrain, train_ids, test_ids = load_csv_data(data_path)
 print("done loading data")
 
 print('x_train shape before splitting: ', xtrain.shape)
 print('y_train shape before splitting: ', ytrain.shape)
+
 
 
 data = xtrain.copy()
@@ -37,6 +38,9 @@ def process_data(x):
    x = (x - np.mean(x)) / np.std(x)  # standarize the data
    x = np.c_[np.ones(len(x)), x]  # add the column of ones
    return x
+
+print('the data fucking sucks ')
+x_train = x_train[:,:-6] # drop the last 6 columns
 
 x_train = process_data(x_train)
 x_test = process_data(x_test)
@@ -60,8 +64,8 @@ print(y_train01)
 # our y_train has 1, -1 values
 y_test01 = y_test.copy()
 y_test01[y_test == -1] = 0
-print(y_test01)
-
+#print(y_test01)
+#print(np.sum(y_test01))
 def compute_gradient_logistic_loss(y, tx, w):
    """Compute the gradient of the logistic regression."""
    return tx.T.dot((1 / (1 + np.exp(- (tx.dot(w)))) - y))
@@ -72,7 +76,7 @@ accuracies_train = []
 accuracies_test = []
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
-   """Logistic regression using stochastic gradient descent and keeps track of the loss and accuracy evolution."""
+   """Logistic regression using SGD and computing the accuracy of training and testing."""
 
    w = initial_w
    prev_loss = float('inf')
@@ -86,7 +90,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
       if prev_loss <= loss:
          gamma *= 0.1        # control of the step size
       prev_loss = loss
-
+      '''
       y_pred_train = prediction_labels(w, tx) # generate prediction matrix
       y_pred_train[np.where(y_pred_train <= 0.5)] = -1   # make the prediction
       y_pred_train[np.where(y_pred_train > 0.5)] = 1
@@ -106,9 +110,10 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
 
    print('losses_train ', losses_train)
    print('losses_test ', losses_test)
+   '''
    return w, loss
 
-print('accuracies_test here :', accuracies_test)
+
 
 
 def compute_accuracy(y, y_pred):
@@ -123,12 +128,14 @@ def compute_accuracy(y, y_pred):
 
 ##  PARAMATERS
 initial_w = np.zeros(x_train.shape[1])
-max_iters = 50
+max_iters = 100
 gamma = 0.001
 
 
 w, train_loss = logistic_regression(y_train01, x_train, initial_w, max_iters, gamma)
-y_pred_train = prediction_labels(w, x_train)
+print('weights are : ', w)
+'''
+y_pred_train = prediction_labels(w, x_train)  # we
 y_pred_train[np.where(y_pred_train <= 0.5)] = -1
 y_pred_train[np.where(y_pred_train > 0.5)] = 1
 accuracy_train = compute_accuracy(y_train, y_pred_train)
@@ -145,10 +152,27 @@ print("train accuracy = ",accuracy_train)
 
 print("test loss = ", test_loss)
 print("test accuracy = ", accuracy_test)
+'''
+# /////////////////////////////////////// try submitting ///////////////////////////////////////////////////////////
+# submission
+# trying on the full set of data
+xtest = process_data(xtest)
+xtest = xtest[:,:-6]  # drop the last 6 columns
+print('xtest shape ', xtest.shape)
+y_pred = prediction_labels(w, xtest)
+print('prediction output ',y_pred)
+
+
+import pandas as pd
+csv_file_path = '../data/predictions.csv'
+predictions_df = pd.DataFrame({'Prediction': y_pred})
+# Save the predictions to a CSV file
+predictions_df.to_csv(csv_file_path, index=False)
+
 
 
 # //////////////////////////////////////// Cross Validation ////////////////////////////////////////////////////////
-
+# TODO hypertune
 
 
 
