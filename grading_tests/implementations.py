@@ -133,7 +133,7 @@ def sigmoid(t):
       Returns:
       float: The result of the sigmoid function
       """
-    return 1.0 / (1.0 + np.exp(-t))
+    return np.where(t < 0, np.exp(t)/(1.0 +np.exp(t)) , 1.0 / (1.0 + np.exp(-t)))  ##
 
 
 
@@ -148,9 +148,12 @@ def logistic_loss(y, tx, w):
         Returns:
         float: The logistic loss between true labels and predicted probabilities.
         """
+    epsilon = 0.000000001
     y_hat = sigmoid(tx.dot(w))
+    y_hat = np.clip(y_hat, epsilon, 1-epsilon)
+
+    loss = - np.average(y*np.log(y_hat) + (1-y)*np.log(1-y_hat))
     # loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
-    loss = - np.average(y*np.log(sigmoid(tx.dot(w))) + (1-y)*np.log(1-sigmoid(tx.dot(w))))
     ## return np.squeeze(loss)  # Remove axes of length 1
     return loss
 
