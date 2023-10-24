@@ -45,7 +45,7 @@ x_test = process_data(x_test)
 print('x_train after processing ',x_train.shape)
 print('x_test after processing ', x_test.shape)
 
-def prediction_labels(weights, data): ## isn't this for linear regression only ? 
+def prediction_labels(weights, data): ## isn't this for linear regression only ? Don't we need the sigmoid?
    """Generates class predictions given weights, and a test data matrix."""
    y_pred = np.dot(data, weights)
    y_pred[np.where(y_pred <= 0)] = -1
