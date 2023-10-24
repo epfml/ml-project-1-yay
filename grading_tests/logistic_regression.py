@@ -50,7 +50,6 @@ def prediction_labels(weights, data): ## isn't this for linear regression only ?
    y_pred = np.dot(data, weights)
    y_pred[np.where(y_pred <= 0)] = -1
    y_pred[np.where(y_pred > 0)] = 1
-
    return y_pred
 
 
