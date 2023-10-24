@@ -14,14 +14,12 @@ with open('training_y.pickle', 'rb') as file:
 data_path = '../data/dataset_to_release'
 xtrain, xtest, ytrain, train_ids, test_ids = load_csv_data(data_path)
 print("done loading data")
-
 print('x_train shape before splitting: ', xtrain.shape)
 print('y_train shape before splitting: ', ytrain.shape)
 
 
-
+## splitting training data into train and test sets
 data = xtrain.copy()
-## splitting data
 x_train, x_test, y_train, y_test = split_data(data, ytrain, 0.8)
 print('x_train shape after split: ', x_train.shape)
 print('y_train shape after split: ', y_train.shape)
@@ -29,8 +27,7 @@ print('x_test shape after split: ', x_test.shape)
 print('y_test shape after split: ', y_test.shape)
 
 
-
-# initial processing of the data like replace Nan values, standarize and add column of 1
+## initial processing of the data like replace Nan values, standarize and add column of 1
 def process_data(x):
    col_means = np.nanmean(x, axis=0)
    inds = np.where(np.isnan(x))
@@ -40,20 +37,23 @@ def process_data(x):
    return x
 
 print('the data fucking sucks ')
-x_train = x_train[:,:-6] # drop the last 6 columns
+print('I agree ')
+x_train = x_train[:,:-6] # drop the last 6 columns ?? why? 
 
 x_train = process_data(x_train)
 x_test = process_data(x_test)
 print('x_train after processing ',x_train.shape)
 print('x_test after processing ', x_test.shape)
 
-def prediction_labels(weights, data):
+def prediction_labels(weights, data): ## isn't this for linear regression only ? 
    """Generates class predictions given weights, and a test data matrix."""
    y_pred = np.dot(data, weights)
    y_pred[np.where(y_pred <= 0)] = -1
    y_pred[np.where(y_pred > 0)] = 1
 
    return y_pred
+
+
 ### logistic regression
 
 # our y_train has 1, -1 values
