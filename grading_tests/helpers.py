@@ -39,6 +39,8 @@ def load_csv_data(data_path, sub_sample=False):
     x_train = x_train[:, 1:]
     x_test = x_test[:, 1:]
 
+    y_train[y_train == -1] = 0
+
     # sub-sample
     if sub_sample:
         y_train = y_train[::50]
