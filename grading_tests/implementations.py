@@ -165,7 +165,7 @@ def logistic_loss(y, tx, w):
 
     return loss
 
-def logistic_regression(y, tx, initial_w, max_iters, gamma):
+def logistic_regression(y, tx, initial_w, max_iters, gamma, verbose=False):
     """
       Perform logistic regression using gradient descent or SGD
 
@@ -182,9 +182,11 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         - loss : The logistic loss (cross-entropy) between true labels and predicted probabilities.
       """
     w = initial_w
-    for _ in range(max_iters):
+    for i in range(max_iters):
         gradient =  tx.T.dot(sigmoid(tx.dot(w)) - y)/ len(y)
         w = w - gamma * gradient
+        if verbose and i % (max_iters // 20) == 0:
+            print(f"loss at step #{i}: {logistic_loss(y, tx, w)}")
 
     loss = logistic_loss(y, tx, w)
     return w, loss
