@@ -1,3 +1,9 @@
-# ML Project 1
+## CS-433-Machine Learning Project 1
 
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/U9FTc9i_)
+The project is structured as follows:
+
+- `run.py`: The main script to create the submission file.
+- `implementations.py`: Contains functions for six different regression methods. In addition, our own methods and variations of logistic regression 
+- `helpers.py`: Provides utility functions used throughout the project.
+- `run.ipynb` : our final notebook 
+- `encode.py`: handles the encoding of the data
