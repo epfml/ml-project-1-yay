@@ -148,9 +148,7 @@ def logistic_loss(y, tx, w):
     pred = sigmoid(tx.dot(w))
     loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
     # loss = y.T.dot(np)
-    return np.squeeze(-loss).item() * (1 / y.shape[0])
-
-    return loss
+    return -loss * (1 / y.shape[0])
 
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma, verbose=False):
