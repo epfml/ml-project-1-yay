@@ -1,38 +1,28 @@
-from helpers import *
 import numpy as np
+import matplotlib.pyplot as plt
+import sys
+
+from helpers import *
 from implementations import *
+from encoding import *
 
-import pickle # remove later
+data_path = 'data'
+x_train_preclean, x_test_preclean, y_train, train_ids, test_ids = load_csv_data(data_path)
 
-data_path = '../data/dataset_to_release'
-print("inside run.py")
-x_train, x_test, y_train, train_ids, test_ids = load_csv_data(data_path)
-print("done loading data")
+print("data is loaded")
+"""# Data Cleaning"""
 
+x_train, filter, categorical_filter, corr_filter, num_transform, cat_transform = process_train(x_train_preclean)
+x_test = process_test(x_test_preclean, filter, categorical_filter, corr_filter, num_transform, cat_transform)
 
-def preprocess(x):
-    x = np.c_[np.ones((x.shape[0], 1)), x]  # add the column of ones
-    col_means = np.nanmean(x, axis=0)
-    inds = np.where(np.isnan(x))
-    x[inds] = np.take(col_means, inds[1])  # replace columns with values NaN with the mean of that column
-    x = (x-np.mean(x))/np.std(x)  # standarize the data
-    return x
+"""# Logistic regression *WITH* regularization"""
 
-print('x_train shape', x_train.shape)
-#tx = preprocess(x_train)
-#print('tx shape', tx.shape)  done later after the split
+initial_w = np.zeros(x_train.shape[1], dtype=np.float64)
+max_iters = 100
+gamma = 0.01
+lambda_ = 0.001
+w_ada, loss_AdaGrad, losses, t = regularized_log_AdaGrad(y_train, x_train, initial_w, max_iters, gamma, lambda_)
 
-#print(tx)
-# are the values repeating?
-unique_values = np.unique(tx)
-print('how many unique values ',len(unique_values))
-
-'''
-# to pickle the tx training matrix
-with open('training_x.pickle', 'wb') as file:
-    pickle.dump(x_tru, file)
-# to pickle y_train
-with open('training_y.pickle', 'wb') as file:
-    pickle.dump(y_train, file)
-
-'''
+y_pred_test_ada = prediction_labels(w_ada, x_test)
+y_pred_test_ada[y_pred_test_ada == 0] = -1
+create_csv_submission(test_ids, y_pred_test, "submission_for_repo.csv")
