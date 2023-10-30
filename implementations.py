@@ -137,18 +137,9 @@ def logistic_loss(y, tx, w):
     Returns:
     float: The logistic loss between true labels and predicted probabilities.
     """
-    # epsilon = 0.000000001
-    # y_hat = sigmoid(tx.dot(w))
-    # y_hat = np.clip(y_hat, epsilon, 1-epsilon)
-
-    # loss = - np.average(y*np.log(y_hat) + (1-y)*np.log(1-y_hat))
-    # loss = (-1 / len(y)) * (y.T.dot(np.log(y_hat)) + (1 - y).T.dot(np.log(1 - y_hat)))
-    ## return np.squeeze(loss)  # Remove axes of length 1
-
     pred = sigmoid(tx.dot(w))
     loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    # loss = y.T.dot(np)
-    return -loss * (1 / y.shape[0])
+    -loss * (1 / y.shape[0])
 
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma, verbose=False):
@@ -210,13 +201,34 @@ def logistic_gradient(y, tx, w):
 
 
 def compute_gradient_logistic_loss_regularized(y, tx, w, lambda_):
-    """Compute the gradient of the regularized logistic regression"""
+    """
+    Compute the gradient of regularized logistic loss.
+
+    Args:
+        y (numpy.ndarray): Data labels.
+        tx (numpy.ndarray): Data features.
+        w (numpy.ndarray): Weights.
+        lambda_ (float): Regularization parameter.
+
+    Returns:
+        numpy.ndarray: Gradient of the regularized logistic loss.
+    """
     grad = logistic_gradient(y, tx, w) + lambda_ * w
     return grad
 
 
-def regularized_log_reg_sgd(y, tx, initial_w, max_iters, gamma, lambda_):  # takes loong
-    """Regularized logistic regression using stochastic gradient descent."""
+def regularized_log_reg_sgd(y, tx, initial_w, max_iters, gamma, lambda_):
+    """
+    Regularized logistic regression using stochastic gradient descent.
+
+    Args:
+        y (numpy.ndarray): Data labels.
+        tx (numpy.ndarray): Data features.
+        ... (Other parameters as in the original function)
+
+    Returns:
+        tuple: Final weights, logistic loss, list of losses for each iteration, and total iterations run.
+    """
     w = initial_w
     prev_loss = float("inf")
     losses = []
@@ -241,6 +253,18 @@ def regularized_log_reg_sgd(y, tx, initial_w, max_iters, gamma, lambda_):  # tak
 
 
 def regularized_log_AdaGrad(y, tx, initial_w, max_iters, gamma, lambda_, epsilon=1e-5):
+    """
+    Regularized logistic regression using AdaGrad optimization.
+
+    Args:
+        y (numpy.ndarray): Data labels.
+        tx (numpy.ndarray): Data features.
+        ... (Other parameters as in the original function)
+
+    Returns:
+        tuple: Final weights, logistic loss, list of losses for each iteration, and total iterations run.
+    """
+
     # Initialize weights and squared gradient accumulator
     w = initial_w
     squared_grad_accumulator = np.zeros(w.shape)
@@ -286,10 +310,6 @@ def build_k_indices(y, k_fold, seed):
 
     Returns:
         A 2D array of shape=(k_fold, N/k_fold) that indicates the data indices for each fold
-
-    >>> build_k_indices(np.array([1., 2., 3., 4.]), 2, 1)
-    array([[3, 2],
-           [0, 1]])
     """
     num_row = y.shape[0]
     interval = int(num_row / k_fold)
@@ -302,17 +322,17 @@ def build_k_indices(y, k_fold, seed):
 
 def cross_validation(y, x, max_iters, k_fold, gamma, lambda_, seed):
     """
-    Separate the training set into k_fold parts, get k_fold sets of w weights, and return the average w
-    Args:
-        y,
-        x,
-        k_fold,
-        lambda_,
+    Perform k-fold cross-validation on the dataset.
 
-    Return:
-        average weight
-        average losses
+    Args:
+        y (numpy.ndarray): Data labels.
+        x (numpy.ndarray): Data features.
+        ... (Other parameters as in the original function)
+
+    Returns:
+        tuple: Average weight, average training loss, average test loss, and average f1_score.
     """
+
     k_indices = build_k_indices(y, k_fold, seed)
     train_losses = []
     test_losses = []
@@ -363,21 +383,25 @@ def prediction_labels(weights, data):
 
 
 def accuracy(y_pred, y_train):
+    """Calculate accuracy of predictions."""
     return (y_pred == y_train).sum() / len(y_train)
 
 
 def precision(y_pred, y_train):
+    """Calculate accuracy of predictions."""
     TP = np.sum((y_train == 1) & (y_pred == 1))
     FP = np.sum((y_train == 0) & (y_pred == 1))
     return TP / (TP + FP)
 
 
 def recall(y_pred, y_train):
+    """Calculate recall of predictions."""
     recall = np.sum((y_train == 1) & (y_pred == 1)) / np.sum(y_train == 1)
     return recall
 
 
 def f1_score(y_pred, y_train):
+    """Calculate F1 score of predictions."""
     return (
         2
         * precision(y_pred, y_train)
@@ -388,17 +412,15 @@ def f1_score(y_pred, y_train):
 
 def get_best_parameters(y, tx, intitial_w, max_iters, k_fold, gamma, lambdas):
     """
+    Determine the best parameters using cross-validation.
+
     Args:
-        y:
-        tx:
-        intitial_w:
-        max_iters:
-        gamma:
-        lambdas:
-        k_fold:
+        y (numpy.ndarray): Data labels.
+        tx (numpy.ndarray): Data features.
+        ... (Other parameters as in the original function)
 
-    Returns: loss_tr, f1_scores
-
+    Returns:
+        tuple: Training loss, test loss, F1 scores, weights, and predicted labels for the best parameters.
     """
     seed = 55
 
